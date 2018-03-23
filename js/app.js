@@ -108,17 +108,29 @@ const UICtrl = ( () => {
   const UISelectors = {
    overlay: '#overlay',
    startBtn: '.btn__reset',
-   greetPlaryer: '#banner',
+   banner: '#banner',
    phrase: '#phrase ul',
    qwerty: '#qwerty'
  }
  return {
   hideOverlay:  () => document.querySelector(UISelectors.overlay).style.display = 'none',
+  
+  appendUsernameInput: () => {
+    const input = document.createElement('input'); // todo: finish writing this out
+  },
+
+  displayCategory: () => {
+    const p = document.createElement('p');
+    p.textContent = `Today's Category: ${localStorage.getItem('category')}`;
+    document.querySelector(UISelectors.banner).appendChild(p);
+  },
+
   greetPlayer: () => {
     const h3 = document.createElement('h3');
     h3.textContent = `Welcome: ${localStorage.getItem('username')}`;
-    document.querySelector(UISelectors.greetPlaryer).appendChild(h3);
+    document.querySelector(UISelectors.banner).appendChild(h3);
   },
+
   getSelectors: () => UISelectors
  }
 })();
@@ -140,6 +152,7 @@ const App = ( (PlayerCtrl, GameCtrl, UICtrl) => {
     console.log('Game started!');
     UICtrl.hideOverlay();
     UICtrl.greetPlayer();
+    UICtrl.displayCategory();
   }
 
 
