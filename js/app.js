@@ -2,7 +2,7 @@
 const GameCtrl = ( () => {
   return {
     gameData: () => {
-      const data = [
+      let data = [
         {
           "category": "Before and after",
           "phrases":[
@@ -64,6 +64,10 @@ const GameCtrl = ( () => {
           ]
         }
       ]
+      data = data[Math.floor(Math.random() * data.length)];
+      localStorage.setItem('category', data.category.toUpperCase());
+      localStorage.setItem('phrase',  data.phrases[Math.floor(Math.random() * data.phrases.length)].toUpperCase());
+      // return category;
     }
   }
 })();
@@ -147,6 +151,9 @@ const App = ( (PlayerCtrl, GameCtrl, UICtrl) => {
       // Pick a random name and set to local storage in case input is empty
       PlayerCtrl.playerData();
 
+      // Pick random category and phrase and set it to localStorage
+      GameCtrl.gameData();
+      
       console.log('Init random name: ' + localStorage.getItem('username')); // todo: remove
     }
   } 
