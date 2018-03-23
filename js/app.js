@@ -68,6 +68,26 @@ const GameCtrl = ( () => {
       localStorage.setItem('category', data.category.toUpperCase());
       localStorage.setItem('phrase',  data.phrases[Math.floor(Math.random() * data.phrases.length)].toUpperCase());
       // return category;
+    },
+    
+    qwerty: () => {
+      const qwerty = document.querySelector(UISelectors.qwerty);
+    },
+
+    getRandomPhraseAsArray: phrase => {
+      let phraseToCharactersArray = [];
+      let data = localStorage.getItem('phrase');
+      const newString = data.split("");
+      phraseToCharactersArray.push(newString);
+      return phraseToCharactersArray;
+    },
+
+    checkLetter: array => {
+      let letterFound;
+    },
+
+    checkWin: () => {
+
     }
   }
 })();
@@ -98,7 +118,15 @@ const PlayerCtrl = ( () => {
         localStorage.setItem('username', player);
       }
       return player;
-    }
+    },
+    // Create new Player
+  createNewPlayer: () => {
+    const input = UICtrl.getUsernameInput();
+   if(input.name === '') {
+    PlayerCtrl.playerData();
+     console.log('set new random name to local storage'); 
+   }
+  }
   }
 })();
 
@@ -107,6 +135,8 @@ const UICtrl = ( () => {
   // Selectors for the markup if change to selector name, all can be changed here in a single location 
   const UISelectors = {
    overlay: '#overlay',
+   overlayTitle: '.title',
+   overlayInput: '#usernameInput',
    startBtn: '.btn__reset',
    banner: '#banner',
    phrase: '#phrase ul',
@@ -115,15 +145,52 @@ const UICtrl = ( () => {
  return {
   hideOverlay:  () => document.querySelector(UISelectors.overlay).style.display = 'none',
   
-  appendUsernameInput: () => {
-    const input = document.createElement('input'); // todo: finish writing this out
+  appendUsernameInputToOverlay: () => {
+    const input = document.createElement('input');
+    // input.style.placeholder = 'Please enter a username';
+    input.id ='usernameInput';
+    input.className = 'usernameInput';
+    document.querySelector(UISelectors.overlayTitle).insertAdjacentElement('afterend',input)
+  },
+
+  // Get username from input
+  getUsernameInput: () => {
+    return {
+      name: document.querySelector(UISelectors.overlayInput).value
+    }
   },
 
   displayCategory: () => {
     const p = document.createElement('p');
-    p.textContent = `Today's Category: ${localStorage.getItem('category')}`;
+    p.textContent = `Today's Category: "${localStorage.getItem('category')}"`;
     document.querySelector(UISelectors.banner).appendChild(p);
   },
+
+    // Add secret phrase to the game board 
+    addPhraseToDisplay: () => { // todo: set show class to any li that equals a space
+      const phrase = GameCtrl.getRandomPhraseAsArray();
+      let arrayLength = phrase[0].length;
+      console.log(phrase);
+      let test = []
+      test = localStorage.getItem('phrase');
+  
+      // Test: remove space to compare to key event and win/lose conditions 
+      test = test.split(' ').join('');
+      console.log('Test: ' + test);
+      
+      for(let i = 0; i < arrayLength; i++){
+        let li = document.createElement('li');
+        li.textContent = `${phrase[0][i]}`;
+        if(li.textContent === " "){
+          li.className = 'space';
+          li.textContent = '-';
+        } else {
+          li.className = 'letter';
+          li.style.color = 'green';
+        }
+        document.querySelector(UISelectors.phrase).appendChild(li);
+      }
+    },
 
   greetPlayer: () => {
     const h3 = document.createElement('h3');
@@ -137,12 +204,23 @@ const UICtrl = ( () => {
 
 // App Controller
 const App = ( (PlayerCtrl, GameCtrl, UICtrl) => {
-  
+  UICtrl.appendUsernameInputToOverlay();
   // Load event listeners
   const loadEventListeners = () => {
     
     // Get UI selectors 
     const UISelectors = UICtrl.getSelectors();
+
+    let player;
+    // check if player has played before and retrieve username
+    if(localStorage.getItem('username') !== null) {
+      player = localStorage.getItem('username');
+      document.querySelector(UISelectors.overlayInput).value = player;
+      console.log('Welcome back: ' + player);
+    } else {
+      PlayerCtrl.createNewPlayer();
+      console.log('creating new player');
+    }
 
     // Listen for Start game click 
     document.querySelector(UISelectors.startBtn).addEventListener('click', startGame);
@@ -150,8 +228,33 @@ const App = ( (PlayerCtrl, GameCtrl, UICtrl) => {
   
   const startGame = () => {
     console.log('Game started!');
+    // Check for username
+    const input = UICtrl.getUsernameInput(); 
+    let player;
+    if( input.name === '') {
+      // PlayerCtrl.getRandomUsernameJSON();
+      player = localStorage.getItem('username');
+      UICtrl.greetPlayer(player);
+    } else {
+      player = input.name;
+      localStorage.setItem('username', player);
+      UICtrl.greetPlayer(player);
+    }
     UICtrl.hideOverlay();
-    UICtrl.greetPlayer();
+    // Add phrase to display
+    UICtrl.addPhraseToDisplay();
+    const UISelectors = UICtrl.getSelectors();
+
+    
+    // if(document.querySelector(UISelectors.overlayInput.value) !== '') {
+    //   UICtrl.greetPlayer();
+    // } else {
+    //   player = document.querySelector(UISelectors.overlayInput.value);
+    //   localStorage.setItem('username', player);
+    //   UICtrl.greetPlayer();
+    // }
+
+    
     UICtrl.displayCategory();
   }
 
@@ -160,14 +263,14 @@ const App = ( (PlayerCtrl, GameCtrl, UICtrl) => {
     init: () => {
       // Load event listeners
       loadEventListeners();
-      
+
       // Pick a random name and set to local storage in case input is empty
       PlayerCtrl.playerData();
 
       // Pick random category and phrase and set it to localStorage
       GameCtrl.gameData();
       
-      console.log('Init random name: ' + localStorage.getItem('username')); // todo: remove
+      // console.log('Init random name: ' + localStorage.getItem('username')); // todo: remove
     }
   } 
 })(PlayerCtrl, GameCtrl, UICtrl);
