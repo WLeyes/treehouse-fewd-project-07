@@ -89,7 +89,7 @@ const PlayerCtrl = ( () => {
       ]
       // Pick a random username
       player = data[Math.floor(Math.random() * data.length)];
-      // check localStorage
+      // check localStorage if empty (new player) then set
       if(localStorage.getItem('username') === null) {
         localStorage.setItem('username', player);
       }
@@ -104,11 +104,17 @@ const UICtrl = ( () => {
   const UISelectors = {
    overlay: '#overlay',
    startBtn: '.btn__reset',
+   greetPlaryer: '#banner',
    phrase: '#phrase ul',
    qwerty: '#qwerty'
  }
  return {
   hideOverlay:  () => document.querySelector(UISelectors.overlay).style.display = 'none',
+  greetPlayer: () => {
+    const h3 = document.createElement('h3');
+    h3.textContent = `Welcome: ${localStorage.getItem('username')}`;
+    document.querySelector(UISelectors.greetPlaryer).appendChild(h3);
+  },
   getSelectors: () => UISelectors
  }
 })();
@@ -129,6 +135,7 @@ const App = ( (PlayerCtrl, GameCtrl, UICtrl) => {
   const startGame = () => {
     console.log('Game started!');
     UICtrl.hideOverlay();
+    UICtrl.greetPlayer();
   }
 
 
