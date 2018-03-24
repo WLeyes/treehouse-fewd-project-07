@@ -68,11 +68,6 @@ const GameCtrl = ( () => {
       data = data[Math.floor(Math.random() * data.length)];
       localStorage.setItem('category', data.category.toUpperCase());
       localStorage.setItem('phrase',  data.phrases[Math.floor(Math.random() * data.phrases.length)].toUpperCase());
-      // return category;
-    },
-    
-    qwerty: () => {
-      const qwerty = document.querySelector(UISelectors.qwerty);
     },
 
     getRandomPhraseAsArray: phrase => {
@@ -168,16 +163,16 @@ const PlayerCtrl = ( () => {
 const UICtrl = ( () => {
   // Selectors for the markup if change to selector name, all can be changed here in a single location 
   const UISelectors = {
-   overlay: '#overlay',
-   overlayTitle: '.title',
-   overlayInput: '#usernameInput',
-   startBtn: '.btn__reset',
-   banner: '#banner',
-   phrase: '#phrase ul',
-   keys: 'keyrow',
-   qwerty: '#qwerty button'
- }
- return {
+    overlay: '#overlay',
+    overlayTitle: '.title',
+    overlayInput: '#usernameInput',
+    startBtn: '.btn__reset',
+    banner: '#banner',
+    phrase: '#phrase ul',
+    keys: 'keyrow',
+    qwerty: '#qwerty button'
+  }
+  return {
 
   hideOverlay:  () => document.querySelector(UISelectors.overlay).style.display = 'none',
   
@@ -203,52 +198,52 @@ const UICtrl = ( () => {
     document.querySelector(UISelectors.banner).appendChild(p);
   },
 
-    // Add secret phrase to the game board 
-    addPhraseToDisplay: () => { // todo: set show class to any li that equals a space
-      const phrase = GameCtrl.getRandomPhraseAsArray();
-      let arrayLength = phrase[0].length;
-      console.log(phrase);
-      for(let i = 0; i < arrayLength; i++){
-        let li = document.createElement('li');
-        li.textContent = `${phrase[0][i]}`;
-        if(li.textContent === " "){
-          li.className = 'letter space';
-          li.textContent = '-';
-        } else {
-          li.className = 'letter';
-          li.style.color = 'green';
-        }
-        document.querySelector(UISelectors.phrase).appendChild(li);
+  // Add secret phrase to the game board 
+  addPhraseToDisplay: () => { // todo: set show class to any li that equals a space
+    const phrase = GameCtrl.getRandomPhraseAsArray();
+    let arrayLength = phrase[0].length;
+    console.log(phrase);
+    for(let i = 0; i < arrayLength; i++){
+      let li = document.createElement('li');
+      li.textContent = `${phrase[0][i]}`;
+      if(li.textContent === " "){
+        li.className = 'letter space';
+        li.textContent = '-';
+      } else {
+        li.className = 'letter';
+        li.style.color = 'green';
       }
-    },
+      document.querySelector(UISelectors.phrase).appendChild(li);
+    }
+  },
 
-    phraseWithoutSpaces: () => {
-      let phraseWithoutSpaces = []
-      phraseWithoutSpaces = localStorage.getItem('phrase');
-      // Test: remove space to compare to key event and win/lose conditions 
-      phraseWithoutSpaces = phraseWithoutSpaces.split(' ').join('');
-      console.log('phraseWithoutSpaces: ' + phraseWithoutSpaces);
-    },
+  //Remove space to compare to key event and win/lose conditions 
+  phraseWithoutSpaces: () => {
+    let phraseWithoutSpaces = []
+    phraseWithoutSpaces = localStorage.getItem('phrase');
+    phraseWithoutSpaces = phraseWithoutSpaces.split(' ').join('');
+    console.log('phraseWithoutSpaces: ' + phraseWithoutSpaces);
+  },
 
-    validKeys: (e) => {
-      // testing valid keys
-      let qwerty = [];
-      let validKeys = document.querySelectorAll(UISelectors.qwerty);
-      for(i = 0; i < validKeys.length; i++){
-        qwerty.push(validKeys[i].textContent.toUpperCase());
-      }
-      console.log(qwerty);
-      let index = e;
-      console.log(qwerty.indexOf(index));
-      if(qwerty.indexOf(index) != -1){
-        console.log(index + ' is in indexOf index');
-        // loop through phraseWithoutSpaces and for each letter that matches the key pressed change class to .show
-          // if it doesn't match missed = +1 || lives = -1 ?
-      } else{
-        console.log('invalid key was pressed!');
-        // flash message that an invalid key was pressed
-      }
-    },
+  validKeys: (e) => {
+    // testing valid keys
+    let qwerty = [];
+    let validKeys = document.querySelectorAll(UISelectors.qwerty);
+    for(i = 0; i < validKeys.length; i++){
+      qwerty.push(validKeys[i].textContent.toUpperCase());
+    }
+    console.log(qwerty);
+    let index = e;
+    console.log(qwerty.indexOf(index));
+    if(qwerty.indexOf(index) != -1){
+      console.log(index + ' is in indexOf index');
+      // loop through phraseWithoutSpaces and for each letter that matches the key pressed change class to .show
+        // if it doesn't match missed = +1 || lives = -1 ?
+    } else{
+      console.log('invalid key was pressed!');
+      // flash message that an invalid key was pressed
+    }
+  },
 
   greetPlayer: () => {
     const h3 = document.createElement('h3');
@@ -257,6 +252,7 @@ const UICtrl = ( () => {
   },
 
   getSelectors: () => UISelectors
+
  }
 })();
 
@@ -288,7 +284,6 @@ const App = ( (PlayerCtrl, GameCtrl, UICtrl) => {
     // Hide overlay
     UICtrl.hideOverlay();
 
-    
     // Add category to display
     UICtrl.displayCategory();
 
@@ -299,19 +294,16 @@ const App = ( (PlayerCtrl, GameCtrl, UICtrl) => {
     document.addEventListener('keyup', keyup);
 
     UICtrl.phraseWithoutSpaces();
-
-    const UISelectors = UICtrl.getSelectors();
   }
 
 // Listen for keyup events
 const keyup = (e) => {
-  console.log(e.key.toUpperCase());
+  e.preventDefault();
+  console.log(e.key.toUpperCase()); // todo: remove
   
   // Check that valid key was pressed
   UICtrl.validKeys(e.key.toUpperCase());
 
-
-  e.preventDefault();
 }
 
   return {
@@ -327,6 +319,8 @@ const keyup = (e) => {
     }
   } 
 })(PlayerCtrl, GameCtrl, UICtrl);
+
+
 
 // Ititialize App
 App.init();
