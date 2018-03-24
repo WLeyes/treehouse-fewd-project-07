@@ -230,7 +230,7 @@ const UICtrl = ( () => {
       console.log('phraseWithoutSpaces: ' + phraseWithoutSpaces);
     },
 
-    validKeys: () => {
+    validKeys: (e) => {
       // testing valid keys
       let qwerty = [];
       let validKeys = document.querySelectorAll(UISelectors.qwerty);
@@ -238,6 +238,16 @@ const UICtrl = ( () => {
         qwerty.push(validKeys[i].textContent.toUpperCase());
       }
       console.log(qwerty);
+      let index = e;
+      console.log(qwerty.indexOf(index));
+      if(qwerty.indexOf(index) != -1){
+        console.log(index + ' is in indexOf index');
+        // loop through phraseWithoutSpaces and for each letter that matches the key pressed change class to .show
+          // if it doesn't match missed = +1 || lives = -1 ?
+      } else{
+        console.log('invalid key was pressed!');
+        // flash message that an invalid key was pressed
+      }
     },
 
   greetPlayer: () => {
@@ -289,8 +299,6 @@ const App = ( (PlayerCtrl, GameCtrl, UICtrl) => {
     document.addEventListener('keyup', keyup);
 
     UICtrl.phraseWithoutSpaces();
-    
-    UICtrl.validKeys();
 
     const UISelectors = UICtrl.getSelectors();
   }
@@ -298,8 +306,10 @@ const App = ( (PlayerCtrl, GameCtrl, UICtrl) => {
 // Listen for keyup events
 const keyup = (e) => {
   console.log(e.key.toUpperCase());
+  
+  // Check that valid key was pressed
+  UICtrl.validKeys(e.key.toUpperCase());
 
-console.log(validKeys);
 
   e.preventDefault();
 }
