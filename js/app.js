@@ -1,6 +1,7 @@
 // Game Controller
 const GameCtrl = ( () => {
   return {
+
     gameData: () => {
       let data = [
         {
@@ -92,6 +93,8 @@ const GameCtrl = ( () => {
   }
 })();
 
+
+
 // Player Controller
 const PlayerCtrl = ( () => {
   return { 
@@ -119,6 +122,19 @@ const PlayerCtrl = ( () => {
       }
       return player;
     },
+    initCheckPlayer: () => {
+      const UISelectors = UICtrl.getSelectors();
+      let player;
+      if(localStorage.getItem('username') !== null) {
+        player = localStorage.getItem('username');
+        document.querySelector(UISelectors.overlayInput).value = player;
+        console.log('Welcome back: ' + player);
+      } else {
+        PlayerCtrl.createNewPlayer();
+        console.log('creating new player');
+      }
+    },
+
     // Create new Player
   createNewPlayer: () => {
     const input = UICtrl.getUsernameInput();
@@ -126,9 +142,27 @@ const PlayerCtrl = ( () => {
     PlayerCtrl.playerData();
      console.log('set new random name to local storage'); 
    }
+  },
+  checkForUsername: () => {
+    // Check for username
+    const input = UICtrl.getUsernameInput(); 
+    let player;
+    if( input.name === '') {
+      // PlayerCtrl.getRandomUsernameJSON();
+      player = localStorage.getItem('username');
+      UICtrl.greetPlayer(player);
+    } else {
+      player = input.name;
+      localStorage.setItem('username', player);
+      UICtrl.greetPlayer(player);
+    }
+    return player;
   }
+
   }
 })();
+
+
 
 // UI Controller
 const UICtrl = ( () => {
@@ -140,9 +174,11 @@ const UICtrl = ( () => {
    startBtn: '.btn__reset',
    banner: '#banner',
    phrase: '#phrase ul',
-   qwerty: '#qwerty'
+   keys: 'keyrow',
+   qwerty: '#qwerty button'
  }
  return {
+
   hideOverlay:  () => document.querySelector(UISelectors.overlay).style.display = 'none',
   
   appendUsernameInputToOverlay: () => {
@@ -162,6 +198,7 @@ const UICtrl = ( () => {
 
   displayCategory: () => {
     const p = document.createElement('p');
+    p.className = 'title';
     p.textContent = `Today's Category: "${localStorage.getItem('category')}"`;
     document.querySelector(UISelectors.banner).appendChild(p);
   },
@@ -171,18 +208,11 @@ const UICtrl = ( () => {
       const phrase = GameCtrl.getRandomPhraseAsArray();
       let arrayLength = phrase[0].length;
       console.log(phrase);
-      let test = []
-      test = localStorage.getItem('phrase');
-  
-      // Test: remove space to compare to key event and win/lose conditions 
-      test = test.split(' ').join('');
-      console.log('Test: ' + test);
-      
       for(let i = 0; i < arrayLength; i++){
         let li = document.createElement('li');
         li.textContent = `${phrase[0][i]}`;
         if(li.textContent === " "){
-          li.className = 'space';
+          li.className = 'letter space';
           li.textContent = '-';
         } else {
           li.className = 'letter';
@@ -190,6 +220,24 @@ const UICtrl = ( () => {
         }
         document.querySelector(UISelectors.phrase).appendChild(li);
       }
+    },
+
+    phraseWithoutSpaces: () => {
+      let phraseWithoutSpaces = []
+      phraseWithoutSpaces = localStorage.getItem('phrase');
+      // Test: remove space to compare to key event and win/lose conditions 
+      phraseWithoutSpaces = phraseWithoutSpaces.split(' ').join('');
+      console.log('phraseWithoutSpaces: ' + phraseWithoutSpaces);
+    },
+
+    validKeys: () => {
+      // testing valid keys
+      let qwerty = [];
+      let validKeys = document.querySelectorAll(UISelectors.qwerty);
+      for(i = 0; i < validKeys.length; i++){
+        qwerty.push(validKeys[i].textContent.toUpperCase());
+      }
+      console.log(qwerty);
     },
 
   greetPlayer: () => {
@@ -202,6 +250,9 @@ const UICtrl = ( () => {
  }
 })();
 
+
+
+
 // App Controller
 const App = ( (PlayerCtrl, GameCtrl, UICtrl) => {
   UICtrl.appendUsernameInputToOverlay();
@@ -211,16 +262,8 @@ const App = ( (PlayerCtrl, GameCtrl, UICtrl) => {
     // Get UI selectors 
     const UISelectors = UICtrl.getSelectors();
 
-    let player;
     // check if player has played before and retrieve username
-    if(localStorage.getItem('username') !== null) {
-      player = localStorage.getItem('username');
-      document.querySelector(UISelectors.overlayInput).value = player;
-      console.log('Welcome back: ' + player);
-    } else {
-      PlayerCtrl.createNewPlayer();
-      console.log('creating new player');
-    }
+    PlayerCtrl.initCheckPlayer();
 
     // Listen for Start game click 
     document.querySelector(UISelectors.startBtn).addEventListener('click', startGame);
@@ -228,36 +271,38 @@ const App = ( (PlayerCtrl, GameCtrl, UICtrl) => {
   
   const startGame = () => {
     console.log('Game started!');
-    // Check for username
-    const input = UICtrl.getUsernameInput(); 
-    let player;
-    if( input.name === '') {
-      // PlayerCtrl.getRandomUsernameJSON();
-      player = localStorage.getItem('username');
-      UICtrl.greetPlayer(player);
-    } else {
-      player = input.name;
-      localStorage.setItem('username', player);
-      UICtrl.greetPlayer(player);
-    }
+
+    // Check player username
+    PlayerCtrl.checkForUsername();
+    
+    // Hide overlay
     UICtrl.hideOverlay();
+
+    
+    // Add category to display
+    UICtrl.displayCategory();
+
     // Add phrase to display
     UICtrl.addPhraseToDisplay();
+    
+    // listen for key input
+    document.addEventListener('keyup', keyup);
+
+    UICtrl.phraseWithoutSpaces();
+    
+    UICtrl.validKeys();
+
     const UISelectors = UICtrl.getSelectors();
-
-    
-    // if(document.querySelector(UISelectors.overlayInput.value) !== '') {
-    //   UICtrl.greetPlayer();
-    // } else {
-    //   player = document.querySelector(UISelectors.overlayInput.value);
-    //   localStorage.setItem('username', player);
-    //   UICtrl.greetPlayer();
-    // }
-
-    
-    UICtrl.displayCategory();
   }
 
+// Listen for keyup events
+const keyup = (e) => {
+  console.log(e.key.toUpperCase());
+
+console.log(validKeys);
+
+  e.preventDefault();
+}
 
   return {
     init: () => {
@@ -269,8 +314,6 @@ const App = ( (PlayerCtrl, GameCtrl, UICtrl) => {
 
       // Pick random category and phrase and set it to localStorage
       GameCtrl.gameData();
-      
-      // console.log('Init random name: ' + localStorage.getItem('username')); // todo: remove
     }
   } 
 })(PlayerCtrl, GameCtrl, UICtrl);
