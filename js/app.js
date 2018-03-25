@@ -170,7 +170,8 @@ const UICtrl = ( () => {
     banner: '#banner',
     phrase: '#phrase ul',
     keys: 'keyrow',
-    qwerty: '#qwerty button'
+    qwerty: '#qwerty button',
+    scoreboard: '#scoreboard ol'
   }
   return {
 
@@ -208,10 +209,9 @@ const UICtrl = ( () => {
       li.textContent = `${phrase[0][i]}`;
       if(li.textContent === " "){
         li.className = 'letter space';
-        li.textContent = '-';
+        li.textContent = '';
       } else {
         li.className = 'letter';
-        li.style.color = 'green';
       }
       document.querySelector(UISelectors.phrase).appendChild(li);
     }
@@ -223,26 +223,50 @@ const UICtrl = ( () => {
     phraseWithoutSpaces = localStorage.getItem('phrase');
     phraseWithoutSpaces = phraseWithoutSpaces.split(' ').join('');
     console.log('phraseWithoutSpaces: ' + phraseWithoutSpaces);
+    return phraseWithoutSpaces;
+  },
+
+  phraseSplit: () => {
+    let phraseSplitArray = [];
+    phraseSplitArray = localStorage.getItem('phrase');
+    phraseSplitArray = phraseSplitArray.split('');
+    return phraseSplitArray;
   },
 
   validKeys: (e) => {
-    // testing valid keys
+    // testing for valid key press
     let qwerty = [];
     let validKeys = document.querySelectorAll(UISelectors.qwerty);
+    console.log(validKeys);
+    
+    // Make sure that only valid keypress is validated
     for(i = 0; i < validKeys.length; i++){
       qwerty.push(validKeys[i].textContent.toUpperCase());
     }
-    console.log(qwerty);
     let index = e;
-    console.log(qwerty.indexOf(index));
     if(qwerty.indexOf(index) != -1){
-      console.log(index + ' is in indexOf index');
-      // loop through phraseWithoutSpaces and for each letter that matches the key pressed change class to .show
-        // if it doesn't match missed = +1 || lives = -1 ?
-    } else{
+      console.log(index + ' is a valid key');
+      // loop through phraseSplit and for each letter that matches the key pressed change class to .show
+
+      // letter is in phrase
+      let phraseSplit = UICtrl.phraseSplit();
+      let li = document.getElementsByTagName('li');
+        for(i = 0; i < li.length; i++){
+          if(li[i].textContent === index) {
+            li[i].style.backgroundColor = 'green'; // todo: set in css and change this to className
+            li[i].style.color = 'white';
+        } else {
+          // missed +1 which means hearts -1
+        }
+        if(validKeys[i].textContent.toUpperCase === index) {
+          validKeys[i].style.backgroundColor = 'green';
+        }
+      }        // if it doesn't match missed = +1 || lives = -1 ?
+    } else {
       console.log('invalid key was pressed!');
       // flash message that an invalid key was pressed
     }
+    // UICtrl.phraseSplit();
   },
 
   greetPlayer: () => {
@@ -299,8 +323,6 @@ const App = ( (PlayerCtrl, GameCtrl, UICtrl) => {
 // Listen for keyup events
 const keyup = (e) => {
   e.preventDefault();
-  console.log(e.key.toUpperCase()); // todo: remove
-  
   // Check that valid key was pressed
   UICtrl.validKeys(e.key.toUpperCase());
 
