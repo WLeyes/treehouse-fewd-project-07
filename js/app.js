@@ -138,6 +138,7 @@ const PlayerCtrl = ( () => {
      console.log('set new random name to local storage'); 
    }
   },
+  
   checkForUsername: () => {
     // Check for username
     const input = UICtrl.getUsernameInput(); 
@@ -247,10 +248,16 @@ const UICtrl = ( () => {
     let index = e;
     if(qwerty.indexOf(index) != -1){
       console.log(index + ' is a valid key');
-      // loop through phraseSplit and for each letter that matches the key pressed change class to .show
+      // Check if the letter is in phrase
+      UICtrl.checkLetter(index, i, validKeys);
+    } else {
+      console.log('invalid key was pressed!');
+      // flash message that an invalid key was pressed
+    }
+  },
 
-      // letter is in phrase
-      let li = document.getElementsByTagName('li');
+  checkLetter: (index, i, validKeys) => {
+    let li = document.getElementsByTagName('li');
         for(i = 0; i < li.length; i++){
           if(li[i].textContent === index) {
             li[i].style.backgroundColor = 'green'; // todo: set in css and change this to className
@@ -259,14 +266,11 @@ const UICtrl = ( () => {
           // missed +1 which means hearts -1
         }
       }
-
       // display onscreen which button was pressed
-      for(i = 0; i < validKeys.length; i++){
-        
+      for(i = 0; i < validKeys.length; i++){      
         if(validKeys[i].textContent.toUpperCase() === index) {
           // console.log(phrase.textContent);
           phraseSplit = UICtrl.phraseSplit();
-
           if(phraseSplit.indexOf(index) !== -1){ // wroking on: trying to get the logic to if in phrase array
             validKeys[i].style.backgroundColor = 'green';
             validKeys[i].style.color = 'white';
@@ -279,10 +283,10 @@ const UICtrl = ( () => {
           }   
         }
       }
-    } else {
-      console.log('invalid key was pressed!');
-      // flash message that an invalid key was pressed
-    }
+  },
+
+  checkWin: () => {
+
   },
 
   greetPlayer: () => {
