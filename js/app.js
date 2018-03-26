@@ -1,14 +1,20 @@
 // Game Controller
 const GameCtrl = ( () => {
   return {
-
+    // this is my equivelent to the "phrases array" reequested for the project
+    // I am using an object in order to set category and phrase
     gameData: () => {
       let data = [
         {
           "category": "Before and after",
           "phrases":[
+            "Back To The Future Plans",
+            "Charlie Brown Paper Bag",
+            "Cover Charge By The Hour",
+            "Pearl Jam Session",
             "tis The Season Tickets",
             "A Blast From The Past Present And Future",
+            "Private Eye Of The Storm",
             "A Dream Come True Detective",
             "Ancient Stone Temple Pilots",
             "Bowling Alley Cat",
@@ -22,6 +28,10 @@ const GameCtrl = ( () => {
         {
           "category": "Rhyme Time",
           "phrases":[
+            "Yertle The Turtle",
+            "Gruesome Twosome",
+            "Ants In Your Pants",
+            "Shop Till You Drop",
             "A Friend To The End",
             "A Locket In Your Pocket",
             "After Dark",
@@ -37,14 +47,20 @@ const GameCtrl = ( () => {
         {
           "category": "TV Show Title",
           "phrases": [
+            "Family Guy",
+            "American Idol",
             "American Ninja Warrior",
             "American Gladiators",
+            "Game Of Thrones",
             "Csi Miami",
             "Cheers",
+            "South Park",
+            "The Simpsons",
             "Fraggle Rock",
             "Fuller House",
             "Mythbusters",
             "Knight Rider",
+            "Smallville",
             "Gold Rush",
             "The IT Crowd"
           ]
@@ -57,19 +73,24 @@ const GameCtrl = ( () => {
             "Austin Powers",
             "Beanie Babies",
             "Beepers",
+            "In Living Color",
             "Boom Boxes",
             "Die Hard",
+            "Mad Tv",
+            "Kurt Cobain",
             "Danielle Steel",
+            "Pauly Shore",
             "Green Day",
             "Ouija Board"
           ]
         }
       ]
       data = data[Math.floor(Math.random() * data.length)];
-      localStorage.setItem('category', data.category.toUpperCase());
-      localStorage.setItem('phrase',  data.phrases[Math.floor(Math.random() * data.phrases.length)].toUpperCase());
+      localStorage.setItem('category', data.category.toUpperCase()); // Random Category
+      localStorage.setItem('phrase',  data.phrases[Math.floor(Math.random() * data.phrases.length)].toUpperCase()); // Random Phrase
     },
 
+    // Thsi gets called to set the Random phrase to the game board
     getRandomPhraseAsArray: phrase => {
       let phraseToCharactersArray = [];
       let data = localStorage.getItem('phrase');
@@ -78,13 +99,38 @@ const GameCtrl = ( () => {
       return phraseToCharactersArray;
     },
 
-    checkLetter: array => {
-      let letterFound;
+      //Remove space to compare to key event and win/lose conditions 
+    phraseWithoutSpaces: () => {
+      let phraseWithoutSpaces = []
+      phraseWithoutSpaces = localStorage.getItem('phrase');
+      phraseWithoutSpaces = phraseWithoutSpaces.split(' ').join('');
+      console.log('phraseWithoutSpaces: ' + phraseWithoutSpaces);
+      return phraseWithoutSpaces;
+    },
+
+    // Splits the phrase array in to an Array of letters
+    phraseSplit: () => {
+      let phraseSplit = [];
+      phraseSplit = localStorage.getItem('phrase');
+      phraseSplit = phraseSplit.split('');
+      return phraseSplit;
+    },
+    
+    scoreboard: () => {
+      return {
+        tries: 5,
+        missed: 0
+      }
     },
 
     checkWin: () => {
-
+      let tries = GameCtrl.scoreboard().tries;
+      let missed = GameCtrl.scoreboard().missed;
+      if(missed === tries){
+        console.log('Game over!');
+      }
     }
+
   }
 })();
 
@@ -218,28 +264,10 @@ const UICtrl = ( () => {
     }
   },
 
-  //Remove space to compare to key event and win/lose conditions 
-  phraseWithoutSpaces: () => {
-    let phraseWithoutSpaces = []
-    phraseWithoutSpaces = localStorage.getItem('phrase');
-    phraseWithoutSpaces = phraseWithoutSpaces.split(' ').join('');
-    console.log('phraseWithoutSpaces: ' + phraseWithoutSpaces);
-    return phraseWithoutSpaces;
-  },
-
-  phraseSplit: () => {
-    let phraseSplit = [];
-    phraseSplit = localStorage.getItem('phrase');
-    phraseSplit = phraseSplit.split('');
-    // console.log('phrase: ' + phraseSplit);
-    return phraseSplit;
-  },
-
   validKeys: (e) => {
     // testing for valid key press
     let qwerty = [];
     let validKeys = document.querySelectorAll(UISelectors.qwerty);
-    console.log(validKeys);
     
     // Make sure that only valid keypress is validated
     for(i = 0; i < validKeys.length; i++){
@@ -247,7 +275,6 @@ const UICtrl = ( () => {
     }
     let index = e;
     if(qwerty.indexOf(index) != -1){
-      console.log(index + ' is a valid key');
       // Check if the letter is in phrase
       UICtrl.checkLetter(index, i, validKeys);
     } else {
@@ -257,32 +284,35 @@ const UICtrl = ( () => {
   },
 
   checkLetter: (index, i, validKeys) => {
+    let missed = 0;
     let li = document.getElementsByTagName('li');
+    // let missed = GameCtrl.scoreboard().missed;
         for(i = 0; i < li.length; i++){
           if(li[i].textContent === index) {
             li[i].style.backgroundColor = 'green'; // todo: set in css and change this to className
             li[i].style.color = 'white';
-        } else {
-          // missed +1 which means hearts -1
         }
       }
       // display onscreen which button was pressed
       for(i = 0; i < validKeys.length; i++){      
         if(validKeys[i].textContent.toUpperCase() === index) {
           // console.log(phrase.textContent);
-          phraseSplit = UICtrl.phraseSplit();
-          if(phraseSplit.indexOf(index) !== -1){ // wroking on: trying to get the logic to if in phrase array
+          phraseSplit = GameCtrl.phraseSplit();
+          if(phraseSplit.indexOf(index) !== -1){ 
             validKeys[i].style.backgroundColor = 'green';
             validKeys[i].style.color = 'white';
-            console.log(index.indexOf(phraseSplit[i]));   
           } else {
             validKeys[i].style.backgroundColor = 'red';
             validKeys[i].style.color = 'white';
-            console.log(index.indexOf(phraseSplit[i])); 
+              // missed = missed += 1;
+              // console.log('missed: ' + missed);
+              
+            // console.log(index.indexOf(phraseSplit[i])); 
             // todo: set missid in local storage on init then subtract a life here until = zero
-          }   
+          }
         }
       }
+      GameCtrl.checkWin(); 
   },
 
   checkWin: () => {
@@ -337,7 +367,7 @@ const App = ( (PlayerCtrl, GameCtrl, UICtrl) => {
     // listen for key input
     document.addEventListener('keyup', keyup);
 
-    UICtrl.phraseWithoutSpaces();
+    GameCtrl.phraseWithoutSpaces();
   }
 
 // Listen for keyup events
