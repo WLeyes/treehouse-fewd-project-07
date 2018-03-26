@@ -227,10 +227,11 @@ const UICtrl = ( () => {
   },
 
   phraseSplit: () => {
-    let phraseSplitArray = [];
-    phraseSplitArray = localStorage.getItem('phrase');
-    phraseSplitArray = phraseSplitArray.split('');
-    return phraseSplitArray;
+    let phraseSplit = [];
+    phraseSplit = localStorage.getItem('phrase');
+    phraseSplit = phraseSplit.split('');
+    // console.log('phrase: ' + phraseSplit);
+    return phraseSplit;
   },
 
   validKeys: (e) => {
@@ -249,7 +250,6 @@ const UICtrl = ( () => {
       // loop through phraseSplit and for each letter that matches the key pressed change class to .show
 
       // letter is in phrase
-      let phraseSplit = UICtrl.phraseSplit();
       let li = document.getElementsByTagName('li');
         for(i = 0; i < li.length; i++){
           if(li[i].textContent === index) {
@@ -258,15 +258,31 @@ const UICtrl = ( () => {
         } else {
           // missed +1 which means hearts -1
         }
-        if(validKeys[i].textContent.toUpperCase === index) {
-          validKeys[i].style.backgroundColor = 'green';
+      }
+
+      // display onscreen which button was pressed
+      for(i = 0; i < validKeys.length; i++){
+        
+        if(validKeys[i].textContent.toUpperCase() === index) {
+          // console.log(phrase.textContent);
+          phraseSplit = UICtrl.phraseSplit();
+
+          if(phraseSplit.indexOf(index) !== -1){ // wroking on: trying to get the logic to if in phrase array
+            validKeys[i].style.backgroundColor = 'green';
+            validKeys[i].style.color = 'white';
+            console.log(index.indexOf(phraseSplit[i]));   
+          } else {
+            validKeys[i].style.backgroundColor = 'red';
+            validKeys[i].style.color = 'white';
+            console.log(index.indexOf(phraseSplit[i])); 
+            // todo: set missid in local storage on init then subtract a life here until = zero
+          }   
         }
-      }        // if it doesn't match missed = +1 || lives = -1 ?
+      }
     } else {
       console.log('invalid key was pressed!');
       // flash message that an invalid key was pressed
     }
-    // UICtrl.phraseSplit();
   },
 
   greetPlayer: () => {
