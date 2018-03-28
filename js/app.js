@@ -1,4 +1,7 @@
 // Game Controller
+let missed = 0;
+let maxTries = 5;
+
 const GameCtrl = ( () => {
   return {
     // this is my equivelent to the "phrases array" reequested for the project
@@ -104,7 +107,6 @@ const GameCtrl = ( () => {
       let phraseWithoutSpaces = []
       phraseWithoutSpaces = localStorage.getItem('phrase');
       phraseWithoutSpaces = phraseWithoutSpaces.split(' ').join('');
-      console.log('phraseWithoutSpaces: ' + phraseWithoutSpaces);
       return phraseWithoutSpaces;
     },
 
@@ -115,22 +117,24 @@ const GameCtrl = ( () => {
       phraseSplit = phraseSplit.split('');
       return phraseSplit;
     },
-    
-    scoreboard: () => {
-      return {
-        tries: 5,
-        missed: 0
-      }
+
+    checkLetter: (event) => {
+      const li = document.querySelectorAll('.letter');
+  let match = null;
+  for(let i = 0; i < li.length; i++){
+    if(event === li[i].textContent.toLowerCase()){
+      match = event;
+      li[i].classList.add('show');
+    }
+  }
+  return match;
     },
 
     checkWin: () => {
-      let tries = GameCtrl.scoreboard().tries;
-      let missed = GameCtrl.scoreboard().missed;
-      if(missed === tries){
-        console.log('Game over!');
+      if(missed === 5){
+        console.log('Game over! you lost');
       }
     }
-
   }
 })();
 
@@ -163,6 +167,8 @@ const PlayerCtrl = ( () => {
       }
       return player;
     },
+
+    // initial check to see if username input and local storage are null
     initCheckPlayer: () => {
       const UISelectors = UICtrl.getSelectors();
       let player;
@@ -216,6 +222,7 @@ const UICtrl = ( () => {
     startBtn: '.btn__reset',
     banner: '#banner',
     phrase: '#phrase ul',
+    letter: '.letter',
     keys: 'keyrow',
     qwerty: '#qwerty button',
     scoreboard: '#scoreboard ol'
@@ -253,6 +260,7 @@ const UICtrl = ( () => {
     console.log(phrase);
     for(let i = 0; i < arrayLength; i++){
       let li = document.createElement('li');
+      // adds class name depending if letter or space
       li.textContent = `${phrase[0][i]}`;
       if(li.textContent === " "){
         li.className = 'letter space';
@@ -264,60 +272,17 @@ const UICtrl = ( () => {
     }
   },
 
-  validKeys: (e) => {
-    // testing for valid key press
-    let qwerty = [];
-    let validKeys = document.querySelectorAll(UISelectors.qwerty);
-    
-    // Make sure that only valid keypress is validated
-    for(i = 0; i < validKeys.length; i++){
-      qwerty.push(validKeys[i].textContent.toUpperCase());
-    }
-    let index = e;
-    if(qwerty.indexOf(index) != -1){
-      // Check if the letter is in phrase
-      UICtrl.checkLetter(index, i, validKeys);
-    } else {
-      console.log('invalid key was pressed!');
-      // flash message that an invalid key was pressed
-    }
-  },
-
-  checkLetter: (index, i, validKeys) => {
-    let missed = 0;
-    let li = document.getElementsByTagName('li');
-    // let missed = GameCtrl.scoreboard().missed;
+  checkLetter: (event) => {
+    let li = document.querySelectorAll(UISelectors.letter);
+     let match = null;
+    // Loop through each letter, if found change to show letter
         for(i = 0; i < li.length; i++){
-          if(li[i].textContent === index) {
-            li[i].style.backgroundColor = 'green'; // todo: set in css and change this to className
-            li[i].style.color = 'white';
+          if(event === li[i].textContent.toLowerCase()) {
+             li[i].classList.add(show);
         }
       }
-      // display onscreen which button was pressed
-      for(i = 0; i < validKeys.length; i++){      
-        if(validKeys[i].textContent.toUpperCase() === index) {
-          // console.log(phrase.textContent);
-          phraseSplit = GameCtrl.phraseSplit();
-          if(phraseSplit.indexOf(index) !== -1){ 
-            validKeys[i].style.backgroundColor = 'green';
-            validKeys[i].style.color = 'white';
-          } else {
-            validKeys[i].style.backgroundColor = 'red';
-            validKeys[i].style.color = 'white';
-              // missed = missed += 1;
-              // console.log('missed: ' + missed);
-              
-            // console.log(index.indexOf(phraseSplit[i])); 
-            // todo: set missid in local storage on init then subtract a life here until = zero
-          }
-        }
-      }
-      GameCtrl.checkWin(); 
   },
 
-  checkWin: () => {
-
-  },
 
   greetPlayer: () => {
     const h3 = document.createElement('h3');
@@ -325,8 +290,8 @@ const UICtrl = ( () => {
     document.querySelector(UISelectors.banner).appendChild(h3);
   },
 
+  // used for mapping the selectors
   getSelectors: () => UISelectors
-
  }
 })();
 
@@ -349,47 +314,57 @@ const App = ( (PlayerCtrl, GameCtrl, UICtrl) => {
     document.querySelector(UISelectors.startBtn).addEventListener('click', startGame);
   }
   
-  const startGame = () => {
-    console.log('Game started!');
+const startGame = () => {
+  console.log('Game started!');
 
-    // Check player username
-    PlayerCtrl.checkForUsername();
-    
-    // Hide overlay
-    UICtrl.hideOverlay();
+  // Check player username
+  PlayerCtrl.checkForUsername();
+  
+  // Hide overlay
+  UICtrl.hideOverlay();
 
-    // Add category to display
-    UICtrl.displayCategory();
+  // Add category to display
+  UICtrl.displayCategory();
 
-    // Add phrase to display
-    UICtrl.addPhraseToDisplay();
-    
-    // listen for key input
-    document.addEventListener('keyup', keyup);
+  // Add phrase to display
+  UICtrl.addPhraseToDisplay();
+  
+  // listen for key input
+  qwerty.addEventListener('click', (event) => {
+    if(event.target.nodeName === 'BUTTON'){
+      event.target.disabled = true;
+      event.target.className = 'chosen';
+      const letterFound = GameCtrl.checkLetter(event.target.textContent);
+      if(letterFound === null){
+        missed++;
+        if(missed >= 1 && missed <= maxTries){
+          let lives = document.querySelector('.tries').firstChild;
+          lives.src = '../images/lostHeart.png';
+          lives.parentElement.className = 'tried';
+        }
+      }
+    }
+    console.log('Missed: ' + missed);
+    GameCtrl.checkWin();
+  });
 
-    GameCtrl.phraseWithoutSpaces();
-  }
-
-// Listen for keyup events
-const keyup = (e) => {
-  e.preventDefault();
-  // Check that valid key was pressed
-  UICtrl.validKeys(e.key.toUpperCase());
+  GameCtrl.phraseWithoutSpaces();
 
 }
 
-  return {
-    init: () => {
-      // Load event listeners
-      loadEventListeners();
 
-      // Pick a random name and set to local storage in case input is empty
-      PlayerCtrl.playerData();
+return {
+  init: () => {
+    // Load event listeners
+    loadEventListeners();
 
-      // Pick random category and phrase and set it to localStorage
-      GameCtrl.gameData();
-    }
-  } 
+    // Pick a random name and set to local storage in case input is empty
+    PlayerCtrl.playerData();
+
+    // Pick random category and phrase and set it to localStorage
+    GameCtrl.gameData();
+  }
+} 
 })(PlayerCtrl, GameCtrl, UICtrl);
 
 
