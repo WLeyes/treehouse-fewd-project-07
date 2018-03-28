@@ -1,9 +1,13 @@
 // Game Controller
+let tries = 0;
 let missed = 0;
-let maxTries = 5;
+let maxMissed = 5;
 
 const GameCtrl = ( () => {
+  
   return {
+
+    
     // this is my equivelent to the "phrases array" reequested for the project
     // I am using an object in order to set category and phrase
     gameData: () => {
@@ -120,19 +124,22 @@ const GameCtrl = ( () => {
 
     checkLetter: (event) => {
       const li = document.querySelectorAll('.letter');
-  let match = null;
-  for(let i = 0; i < li.length; i++){
-    if(event === li[i].textContent.toLowerCase()){
-      match = event;
-      li[i].classList.add('show');
-    }
-  }
-  return match;
+      let match = null;
+      for(let i = 0; i < li.length; i++){
+        if(event === li[i].textContent.toLowerCase()){
+          match = event;
+          li[i].classList.add('show');
+        }
+      }
+      return match;
     },
 
     checkWin: () => {
       if(missed === 5){
         console.log('Game over! you lost');
+      }
+      else if(document.querySelectorAll('.show').length === GameCtrl.phraseWithoutSpaces().length){
+        console.log("You won!");
       }
     }
   }
@@ -211,7 +218,6 @@ const PlayerCtrl = ( () => {
 })();
 
 
-
 // UI Controller
 const UICtrl = ( () => {
   // Selectors for the markup if change to selector name, all can be changed here in a single location 
@@ -223,9 +229,8 @@ const UICtrl = ( () => {
     banner: '#banner',
     phrase: '#phrase ul',
     letter: '.letter',
-    keys: 'keyrow',
+    show: '.show',
     qwerty: '#qwerty button',
-    scoreboard: '#scoreboard ol'
   }
   return {
 
@@ -274,15 +279,14 @@ const UICtrl = ( () => {
 
   checkLetter: (event) => {
     let li = document.querySelectorAll(UISelectors.letter);
-     let match = null;
-    // Loop through each letter, if found change to show letter
-        for(i = 0; i < li.length; i++){
-          if(event === li[i].textContent.toLowerCase()) {
-             li[i].classList.add(show);
-        }
+    let match = null;
+      // Loop through each letter, if found change to show letter
+      for(i = 0; i < li.length; i++){
+        if(event === li[i].textContent.toLowerCase()) {
+          li[i].classList.add(show);
       }
+    }
   },
-
 
   greetPlayer: () => {
     const h3 = document.createElement('h3');
@@ -332,18 +336,20 @@ const startGame = () => {
   // listen for key input
   qwerty.addEventListener('click', (event) => {
     if(event.target.nodeName === 'BUTTON'){
+      tries++;
       event.target.disabled = true;
       event.target.className = 'chosen';
       const letterFound = GameCtrl.checkLetter(event.target.textContent);
       if(letterFound === null){
         missed++;
-        if(missed >= 1 && missed <= maxTries){
+        if(missed >= 1 && missed <= maxMissed){
           let lives = document.querySelector('.tries').firstChild;
           lives.src = '../images/lostHeart.png';
           lives.parentElement.className = 'tried';
         }
       }
     }
+    console.log('tries: ' + tries);
     console.log('Missed: ' + missed);
     GameCtrl.checkWin();
   });
