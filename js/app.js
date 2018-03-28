@@ -1,4 +1,5 @@
 // Game Controller
+  // todo: refactor and relocate inside game controller 
 let tries = 0;
 let missed = 0;
 let maxMissed = 5;
@@ -230,7 +231,7 @@ const UICtrl = ( () => {
     phrase: '#phrase ul',
     letter: '.letter',
     show: '.show',
-    qwerty: '#qwerty button',
+    qwerty: '#qwerty',
   }
   return {
 
@@ -382,7 +383,17 @@ console.log(e.key);
   if(qwerty.indexOf(index.key) != -1){
     console.log(index + ' is a valid key');
     const letterFound = GameCtrl.checkLetter(index.key);
+
     // Loop through onscreen keyboard and set chosen and disable key
+      // return to onscreen keyboard?
+      console.log(letterFound);
+    
+    for(i = 0; i < validKeys.length; i++){
+      if(validKeys[i].textContent === index.key) {
+        validKeys[i].className = 'chosen';
+        validKeys[i].disabled = 'true';
+      }
+    }
 
     if(letterFound === null){
       missed++;
@@ -392,6 +403,7 @@ console.log(e.key);
         lives.parentElement.className = 'tried';
       }
     }
+
   } else {
     console.log('invalid key was pressed!');
     // flash message that an invalid key was pressed
@@ -408,6 +420,7 @@ const onScreenKeyboard = (event) => {
     event.target.disabled = true;
     event.target.className = 'chosen';
     const letterFound = GameCtrl.checkLetter(event.target.textContent);
+
     if(letterFound === null){
       missed++;
       if(missed >= 1 && missed <= maxMissed){
@@ -416,10 +429,11 @@ const onScreenKeyboard = (event) => {
         lives.parentElement.className = 'tried';
       }
     }
+
+    console.log('tries: ' + tries);
+    console.log('Missed: ' + missed);
+    GameCtrl.checkWin();
   }
-  console.log('tries: ' + tries);
-  console.log('Missed: ' + missed);
-  GameCtrl.checkWin();
 }
 
 return {
