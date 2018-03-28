@@ -195,7 +195,7 @@ const PlayerCtrl = ( () => {
     const input = UICtrl.getUsernameInput();
    if(input.name === '') {
     PlayerCtrl.playerData();
-     console.log('set new random name to local storage'); 
+     console.log('set new random name to localStorage'); 
    }
   },
   
@@ -288,7 +288,8 @@ const UICtrl = ( () => {
       }
     }
   },
-  validKeys: (e) => {
+
+  validKeys: (event) => {
     // testing for valid key press
     let qwerty = [];
     let validKeys = document.querySelectorAll(UISelectors.qwerty);
@@ -298,7 +299,7 @@ const UICtrl = ( () => {
     for(i = 0; i < validKeys.length; i++){
       qwerty.push(validKeys[i].textContent.toUpperCase());
     }
-    let index = e;
+    let index = event;
     if(qwerty.indexOf(index) != -1){
       console.log(index + ' is a valid key');
       // loop through phraseSplit and for each letter that matches the key pressed change class to .show
@@ -365,10 +366,25 @@ const startGame = () => {
 
 }
 
+// initialize an array for keypresses outside of the function  
+let pressedKeys = [];
+
 // Listen for keyup events
 const keyup = (e) => {
   
   e.preventDefault();
+
+  // check if it's part of the array, if true, exit function
+   // Thanks to jimmy-g for this work around for ignoring the key
+  for (let i = 0; i < pressedKeys.length; i++) {
+    if (pressedKeys[i] === e.key) {
+      return false;
+    }
+  }
+
+   // if not add it to the array
+	pressedKeys.push(e.key);
+  
   // testing for valid key press
   let qwerty = [];
   let validKeys = document.querySelectorAll('#qwerty button');
@@ -377,7 +393,6 @@ const keyup = (e) => {
   for(i = 0; i < validKeys.length; i++){
     qwerty.push(validKeys[i].textContent);
   }
-console.log(e.key);
 
   let index = e;
   if(qwerty.indexOf(index.key) != -1){
