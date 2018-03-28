@@ -287,6 +287,27 @@ const UICtrl = ( () => {
       }
     }
   },
+  validKeys: (e) => {
+    // testing for valid key press
+    let qwerty = [];
+    let validKeys = document.querySelectorAll(UISelectors.qwerty);
+    console.log(validKeys);
+    
+    // Make sure that only valid keypress is validated
+    for(i = 0; i < validKeys.length; i++){
+      qwerty.push(validKeys[i].textContent.toUpperCase());
+    }
+    let index = e;
+    if(qwerty.indexOf(index) != -1){
+      console.log(index + ' is a valid key');
+      // loop through phraseSplit and for each letter that matches the key pressed change class to .show
+
+      // letter is in phrase
+    } else {
+      console.log('invalid key was pressed!');
+      // flash message that an invalid key was pressed
+    }
+  },
 
   greetPlayer: () => {
     const h3 = document.createElement('h3');
@@ -334,30 +355,72 @@ const startGame = () => {
   UICtrl.addPhraseToDisplay();
   
   // listen for key input
-  qwerty.addEventListener('click', (event) => {
-    if(event.target.nodeName === 'BUTTON'){
-      tries++;
-      event.target.disabled = true;
-      event.target.className = 'chosen';
-      const letterFound = GameCtrl.checkLetter(event.target.textContent);
-      if(letterFound === null){
-        missed++;
-        if(missed >= 1 && missed <= maxMissed){
-          let lives = document.querySelector('.tries').firstChild;
-          lives.src = '../images/lostHeart.png';
-          lives.parentElement.className = 'tried';
-        }
-      }
-    }
-    console.log('tries: ' + tries);
-    console.log('Missed: ' + missed);
-    GameCtrl.checkWin();
-  });
+  qwerty.addEventListener('click', onScreenKeyboard);
+
+  // listen for key input
+  document.addEventListener('keyup', keyup);
 
   GameCtrl.phraseWithoutSpaces();
 
 }
 
+// Listen for keyup events
+const keyup = (e) => {
+  
+  e.preventDefault();
+  // testing for valid key press
+  let qwerty = [];
+  let validKeys = document.querySelectorAll('#qwerty button');
+  
+  // Make sure that only valid keypress is validated
+  for(i = 0; i < validKeys.length; i++){
+    qwerty.push(validKeys[i].textContent);
+  }
+console.log(e.key);
+
+  let index = e;
+  if(qwerty.indexOf(index.key) != -1){
+    console.log(index + ' is a valid key');
+    const letterFound = GameCtrl.checkLetter(index.key);
+    // Loop through onscreen keyboard and set chosen and disable key
+
+    if(letterFound === null){
+      missed++;
+      if(missed >= 1 && missed <= maxMissed){
+        let lives = document.querySelector('.tries').firstChild;
+        lives.src = '../images/lostHeart.png';
+        lives.parentElement.className = 'tried';
+      }
+    }
+  } else {
+    console.log('invalid key was pressed!');
+    // flash message that an invalid key was pressed
+  }
+  console.log('tries: ' + tries);
+  console.log('Missed: ' + missed);
+  GameCtrl.checkWin();
+}
+
+// Listen for onscreen Keyboard
+const onScreenKeyboard = (event) => {
+  if(event.target.nodeName === 'BUTTON'){
+    tries++;
+    event.target.disabled = true;
+    event.target.className = 'chosen';
+    const letterFound = GameCtrl.checkLetter(event.target.textContent);
+    if(letterFound === null){
+      missed++;
+      if(missed >= 1 && missed <= maxMissed){
+        let lives = document.querySelector('.tries').firstChild;
+        lives.src = '../images/lostHeart.png';
+        lives.parentElement.className = 'tried';
+      }
+    }
+  }
+  console.log('tries: ' + tries);
+  console.log('Missed: ' + missed);
+  GameCtrl.checkWin();
+}
 
 return {
   init: () => {
