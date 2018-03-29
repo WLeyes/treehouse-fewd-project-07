@@ -1,11 +1,11 @@
 /* Main styles */
-@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,700&Roboto:300');
-
+/* @import url('https://fonts.googleapis.com/css?family=Open+Sans:400,700&Roboto:300'); */
+@import url('https://fonts.googleapis.com/css?family=Montserrat+Alternates:400,800,900|Open+Sans:400,700');
 /* Variables */
 
 :root {
-  --color-win: #78CF82;
-  --color-lose: #D94545;
+  --color-win: #118C34;
+  --color-lose: #8C1F1F;
   --color-start: #5b85b7;
   --color-neutral: #445069;
   --color-neutral-light: #D2D2D2;
@@ -13,7 +13,7 @@
   --color-keys-light: #E5E5E5;
   --font-size-large: 60px;
   --font-size-medium: 20px;
-  --transition: all .2s ease-in-out;
+  --transition: all 1.0s ease-in-out;
 }
 
 /* main */
@@ -27,6 +27,7 @@ body {
   flex-direction: column;
   display: flex;
   height: 100vh;
+  font-family: 'Open Sans', sans-serif;
   background: #222;
 }
 
@@ -38,7 +39,8 @@ li, ol, ul {
 h2 {
   margin: 0;
   text-transform: uppercase;
-  font-family: 'Open Sans', sans-serif;
+  font-family: 'Montserrat Alternates', sans-serif;
+  font-weight: 300;
   font-size: var(--font-size-large);
   margin: 0;
 }
@@ -95,8 +97,10 @@ button {
 }
 
 .show {
-  color: #000;
-  background-color: #76CE82;
+  color: #FFF;
+  background-color: var(--color-win);
+  transition: all 2s;
+  transform: rotateY(360deg);
 }
 
 /* Keyboard */
@@ -111,6 +115,11 @@ button {
   border-radius: 5px;
   font-size: var(--font-size-medium);
   color: #FFFFFF;
+}
+
+.missed {
+  color: #FFF;
+  background-color: var(--color-lose);
 }
 
 .btn__reset {

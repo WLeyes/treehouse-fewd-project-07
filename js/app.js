@@ -138,6 +138,7 @@ const GameCtrl = ( () => {
     checkWin: () => {
       if(missed === 5){
         console.log('Game over! you lost');
+        
       }
       else if(document.querySelectorAll('.show').length === GameCtrl.phraseWithoutSpaces().length){
         console.log("You won!");
@@ -191,12 +192,12 @@ const PlayerCtrl = ( () => {
     },
 
     // Create new Player
-  createNewPlayer: () => {
-    const input = UICtrl.getUsernameInput();
-   if(input.name === '') {
-    PlayerCtrl.playerData();
-     console.log('set new random name to localStorage'); 
-   }
+    createNewPlayer: () => {
+      const input = UICtrl.getUsernameInput();
+    if(input.name === '') {
+      PlayerCtrl.playerData();
+      console.log('set new random name to localStorage'); 
+    }
   },
   
   checkForUsername: () => {
@@ -291,16 +292,9 @@ const UICtrl = ( () => {
 
   validKeys: (event) => {
     // testing for valid key press
-    let qwerty = [];
     let validKeys = document.querySelectorAll(UISelectors.qwerty);
-    console.log(validKeys);
-    
-    // Make sure that only valid keypress is validated
-    for(i = 0; i < validKeys.length; i++){
-      qwerty.push(validKeys[i].textContent.toUpperCase());
-    }
     let index = event;
-    if(qwerty.indexOf(index) != -1){
+    if(validKeys.indexOf(index) != -1){
       console.log(index + ' is a valid key');
       // loop through phraseSplit and for each letter that matches the key pressed change class to .show
 
@@ -339,6 +333,12 @@ const App = ( (PlayerCtrl, GameCtrl, UICtrl) => {
 
     // Listen for Start game click 
     document.querySelector(UISelectors.startBtn).addEventListener('click', startGame);
+
+    // Credit to Randy Layne for the following listener 
+    // supress users ability to click around in the phrase area and have the browsers text selector reveal the phrase
+    document.addEventListener("mousedown", function (e) {
+      e.preventDefault();
+    });
   }
   
 const startGame = () => {
@@ -383,7 +383,7 @@ const keyup = (e) => {
   }
 
    // if not add it to the array
-	pressedKeys.push(e.key);
+	pressedKeys.push(event.key);
   
   // testing for valid key press
   let qwerty = [];
@@ -394,28 +394,33 @@ const keyup = (e) => {
     qwerty.push(validKeys[i].textContent);
   }
 
-  let index = e;
-  if(qwerty.indexOf(index.key) != -1){
-    console.log(index + ' is a valid key');
-    const letterFound = GameCtrl.checkLetter(index.key);
+  if(qwerty.indexOf(event.key) != -1){
+    console.log(event + ' is a valid key');
+    const letterFound = GameCtrl.checkLetter(event.key);
 
     // Loop through onscreen keyboard and set chosen and disable key
-      // return to onscreen keyboard?
-      console.log(letterFound);
-    
     for(i = 0; i < validKeys.length; i++){
-      if(validKeys[i].textContent === index.key) {
+      if(validKeys[i].textContent === event.key) {
         validKeys[i].className = 'chosen';
         validKeys[i].disabled = 'true';
       }
     }
 
+    // if letter is not found
     if(letterFound === null){
+      // add +1 to the missed count
       missed++;
+      // as long as missed is at least 1 and less then max tries
       if(missed >= 1 && missed <= maxMissed){
+        // replace the heart image of the first element  
         let lives = document.querySelector('.tries').firstChild;
         lives.src = '../images/lostHeart.png';
-        lives.parentElement.className = 'tried';
+        lives.parentElement.classList.remove('tries');
+        for(i = 0; i < validKeys.length; i++){
+          if(validKeys[i].textContent === event.key) {
+            validKeys[i].classList.add('missed');
+          }
+        }
       }
     }
 
@@ -423,6 +428,7 @@ const keyup = (e) => {
     console.log('invalid key was pressed!');
     // flash message that an invalid key was pressed
   }
+  
   console.log('tries: ' + tries);
   console.log('Missed: ' + missed);
   GameCtrl.checkWin();
@@ -441,7 +447,8 @@ const onScreenKeyboard = (event) => {
       if(missed >= 1 && missed <= maxMissed){
         let lives = document.querySelector('.tries').firstChild;
         lives.src = '../images/lostHeart.png';
-        lives.parentElement.className = 'tried';
+        lives.parentElement.classList.remove('tries');
+        event.target.classList.add('missed');
       }
     }
 
