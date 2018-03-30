@@ -156,7 +156,7 @@ const GameCtrl = ( () => {
         missed++;
         if(missed >= 1 && missed <= maxMissed){
           let lives = document.querySelector('.tries').firstChild;
-          lives.src = '../images/lostHeart.png';
+          lives.src = './images/lostHeart.png';
           lives.parentElement.classList.add('tried');
           lives.parentElement.classList.remove('tries');
           for(i=0; i < button.length; i++){
@@ -326,7 +326,7 @@ const UICtrl = ( () => {
       const li = document.createElement('li');
       li.className = 'tries';
       const img = document.createElement('img');
-      img.setAttribute('src', 'images/liveHeart.png') ;
+      img.setAttribute('src', './images/liveHeart.png') ;
       li.appendChild(img);
       document.querySelector(UISelectors.scoreboard).appendChild(li);
     }
