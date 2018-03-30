@@ -323,7 +323,7 @@ const UICtrl = ( () => {
 
   reset: () => { // todo: refactor win/lose and place common settings between them into reset
 
-  }
+  },
 
   win: () => {
     let div = document.createElement('div');
