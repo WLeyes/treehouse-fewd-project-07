@@ -124,21 +124,51 @@ const GameCtrl = ( () => {
     },
 
     checkLetter: (event) => {
-      const li = document.querySelectorAll('.letter');
+      tries++;
+      // Get UI selectors
+      const UISelectors = UICtrl.getSelectors();
+
+      const li = document.querySelectorAll(UISelectors.letter);
+      const button = document.querySelectorAll(`${UISelectors.qwerty} button`);
       let match = null;
+
+      // mark each letter that was pressed
+      for(i=0; i < button.length; i++){
+        if(button[i].textContent === event){
+          button[i].classList.add('chosen');
+          button[i].disabled = true;
+        }
+      }
+
+      // if letter is a match display it
       for(let i = 0; i < li.length; i++){
         if(event === li[i].textContent.toLowerCase()){
           match = event;
           li[i].classList.add('show');
         }
       }
-      return match;
+
+      // If letter is not found;
+      if(match === null){
+        missed++;
+        if(missed >= 1 && missed <= maxMissed){
+          let lives = document.querySelector('.tries').firstChild;
+          lives.src = '../images/lostHeart.png';
+          lives.parentElement.classList.remove('tries');
+          for(i=0; i < button.length; i++){
+            if(button[i].textContent === event){
+              button[i].classList.add('missed');
+            }
+          }
+      }
+    }
+
     },
 
     checkWin: () => {
       if(missed === 5){
         console.log('Game over! you lost');
-        
+        UICtrl.lose();
       }
       else if(document.querySelectorAll('.show').length === GameCtrl.phraseWithoutSpaces().length){
         console.log("You won!");
@@ -280,32 +310,6 @@ const UICtrl = ( () => {
     }
   },
 
-  checkLetter: (event) => {
-    let li = document.querySelectorAll(UISelectors.letter);
-    let match = null;
-      // Loop through each letter, if found change to show letter
-      for(i = 0; i < li.length; i++){
-        if(event === li[i].textContent.toLowerCase()) {
-          li[i].classList.add(show);
-      }
-    }
-  },
-
-  validKeys: (event) => {
-    // testing for valid key press
-    let validKeys = document.querySelectorAll(UISelectors.qwerty);
-    let index = event;
-    if(validKeys.indexOf(index) != -1){
-      console.log(index + ' is a valid key');
-      // loop through phraseSplit and for each letter that matches the key pressed change class to .show
-
-      // letter is in phrase
-    } else {
-      console.log('invalid key was pressed!');
-      // flash message that an invalid key was pressed
-    }
-  },
-
   greetPlayer: () => {
     const h3 = document.createElement('h3');
     h3.textContent = `Welcome: ${localStorage.getItem('username')}`;
@@ -319,11 +323,14 @@ const UICtrl = ( () => {
     let h2 = document.createElement('h2');
     h2.className = 'title';
     h2.textContent = 'Wheel of Success';
+    let p = document.createElement('p');
+    p.textContent = `Congratulations ${localStorage.getItem('username')}, you won!`;
     let a = document.createElement('a');
     a.className = 'btn__reset';
     a.textContent = 'Start a new game?';
     document.body.appendChild(div);
     div.appendChild(h2);
+    div.appendChild(p);
     div.appendChild(a);
     // Listen for Start game click 
     a.addEventListener('click', (event) => {
@@ -339,12 +346,8 @@ const UICtrl = ( () => {
       console.log(phrase.length);
       let li = document.querySelectorAll(`${UISelectors.phrase} li`);
       for(let i = 0; i < phrase.length; i++) {
-        console.log(li[i]);
         document.querySelector(UISelectors.phrase).removeChild(li[i]);
       }
-
-      // Get and set new random Category and Phrase 
-      // GameCtrl.gameData();
       
       // Add category to display
       UICtrl.displayCategory();
@@ -353,20 +356,75 @@ const UICtrl = ( () => {
       UICtrl.addPhraseToDisplay();
       
       // Clear the keys
-      // let qwerty = document.querySelectorAll(`${UISelectors.qwerty} button`);
       let qwerty = document.querySelectorAll('#qwerty button');
       console.log(qwerty.length);
       for(let i = 0; i < qwerty.length; i++){  
         qwerty[i].removeAttribute('class');
         qwerty[i].disabled = false;
       }
+      // Hide win overlay
       div.style.display = 'none';
-      document.querySelector(UISelectors.startBtn).addEventListener('click', startGame);
+
+      // Start the game
+      App.startGame;
     });
   },
 
   lose: () => {
+    let div = document.createElement('div');
+    div.id = 'overlay';
+    div.className = 'lose';
+    let h2 = document.createElement('h2');
+    h2.className = 'title';
+    h2.textContent = 'Wheel of Success';
+    let p = document.createElement('p');
+    p.textContent = `Sorry ${localStorage.getItem('username')}, you lost!`;
+    let p2 = document.createElement('p');
+    p2.textContent = `The correct answer was: ${localStorage.getItem('phrase')}`;
+    let a = document.createElement('a');
+    a.className = 'btn__reset';
+    a.textContent = 'Start a new game?';
+    document.body.appendChild(div);
+    div.appendChild(h2);
+    div.appendChild(p);
+    div.appendChild(p2);
+    div.appendChild(a);
+    // Listen for Start game click 
+    a.addEventListener('click', (event) => {
+      missed = 0;
+      console.log('reset missed to: ' + missed);
+      App.init();
+      
+      // Remove last category from display
+      document.querySelector(`${UISelectors.banner} p`).remove();
 
+      // Remove last phrase
+      let phrase = document.querySelectorAll(`${UISelectors.phrase} li`);
+      console.log(phrase.length);
+      let li = document.querySelectorAll(`${UISelectors.phrase} li`);
+      for(let i = 0; i < phrase.length; i++) {
+        document.querySelector(UISelectors.phrase).removeChild(li[i]);
+      }
+      
+      // Add category to display
+      UICtrl.displayCategory();
+
+      // Add phrase to display
+      UICtrl.addPhraseToDisplay();
+      
+      // Clear the keys
+      let qwerty = document.querySelectorAll('#qwerty button');
+      console.log(qwerty.length);
+      for(let i = 0; i < qwerty.length; i++){  
+        qwerty[i].removeAttribute('class');
+        qwerty[i].disabled = false;
+      }
+      // Hide win overlay
+      div.style.display = 'none';
+
+      // Start the game
+      App.startGame;
+    });
   },
 
   // used for mapping the selectors
@@ -418,100 +476,37 @@ const startGame = () => {
   qwerty.addEventListener('click', onScreenKeyboard);
 
   // listen for key input
-  document.addEventListener('keyup', keyup);
+  window.addEventListener('keyup', keyup);
 
   GameCtrl.phraseWithoutSpaces();
 
 }
 
-// initialize an array for keypresses outside of the function  
-let pressedKeys = [];
 
 // Listen for keyup events
-const keyup = (e) => {
-  
-  e.preventDefault();
-
-  // check if it's part of the array, if true, exit function
-   // Thanks to jimmy-g for this work around for ignoring the key
-  for (let i = 0; i < pressedKeys.length; i++) {
-    if (pressedKeys[i] === e.key) {
-      return false;
-    }
-  }
-
-   // if not add it to the array
-	pressedKeys.push(event.key);
-  
+const keyup = (event) => { 
+  event.preventDefault();
   // testing for valid key press
-  let qwerty = [];
-  let validKeys = document.querySelectorAll('#qwerty button');
+  const key = event.key
+  const validKeys = document.querySelectorAll('button');
   
   // Make sure that only valid keypress is validated
-  for(i = 0; i < validKeys.length; i++){
-    qwerty.push(validKeys[i].textContent);
-  }
-
-  if(qwerty.indexOf(event.key) != -1){
-    console.log(event + ' is a valid key');
-    const letterFound = GameCtrl.checkLetter(event.key);
-
-    // Loop through onscreen keyboard and set chosen and disable key
-    for(i = 0; i < validKeys.length; i++){
-      if(validKeys[i].textContent === event.key) {
-        validKeys[i].className = 'chosen';
-        validKeys[i].disabled = 'true';
+  for(let count in validKeys) {
+    if (count !== undefined) {
+      const letter = validKeys[count];
+      if (letter.textContent === key && letter.className !== "chosen missed") {
+        GameCtrl.checkLetter(letter.textContent);	
       }
     }
-
-    // if letter is not found
-    if(letterFound === null){
-      // add +1 to the missed count
-      missed++;
-      // as long as missed is at least 1 and less then max tries
-      if(missed >= 1 && missed <= maxMissed){
-        // replace the heart image of the first element  
-        let lives = document.querySelector('.tries').firstChild;
-        lives.src = '../images/lostHeart.png';
-        lives.parentElement.classList.remove('tries');
-        for(i = 0; i < validKeys.length; i++){
-          if(validKeys[i].textContent === event.key) {
-            validKeys[i].classList.add('missed');
-          }
-        }
-      }
-    }
-
-  } else {
-    console.log('invalid key was pressed!');
-    // flash message that an invalid key was pressed
+    // console.log(validKeys[count]);
   }
-  
-  console.log('tries: ' + tries);
-  console.log('Missed: ' + missed);
   GameCtrl.checkWin();
 }
 
 // Listen for onscreen Keyboard
 const onScreenKeyboard = (event) => {
   if(event.target.nodeName === 'BUTTON'){
-    tries++;
-    event.target.disabled = true;
-    event.target.className = 'chosen';
-    const letterFound = GameCtrl.checkLetter(event.target.textContent);
-
-    if(letterFound === null){
-      missed++;
-      if(missed >= 1 && missed <= maxMissed){
-        let lives = document.querySelector('.tries').firstChild;
-        lives.src = '../images/lostHeart.png';
-        lives.parentElement.classList.remove('tries');
-        event.target.classList.add('missed');
-      }
-    }
-
-    console.log('tries: ' + tries);
-    console.log('Missed: ' + missed);
+    GameCtrl.checkLetter(event.target.textContent);
     GameCtrl.checkWin();
   }
 }
