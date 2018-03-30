@@ -142,6 +142,7 @@ const GameCtrl = ( () => {
       }
       else if(document.querySelectorAll('.show').length === GameCtrl.phraseWithoutSpaces().length){
         console.log("You won!");
+        UICtrl.win();
       }
     }
   }
@@ -311,6 +312,63 @@ const UICtrl = ( () => {
     document.querySelector(UISelectors.banner).appendChild(h3);
   },
 
+  win: () => {
+    let div = document.createElement('div');
+    div.id = 'overlay';
+    div.className = 'win';
+    let h2 = document.createElement('h2');
+    h2.className = 'title';
+    h2.textContent = 'Wheel of Success';
+    let a = document.createElement('a');
+    a.className = 'btn__reset';
+    a.textContent = 'Start a new game?';
+    document.body.appendChild(div);
+    div.appendChild(h2);
+    div.appendChild(a);
+    // Listen for Start game click 
+    a.addEventListener('click', (event) => {
+      missed = 0;
+      console.log('reset missed to: ' + missed);
+      App.init();
+      
+      // Remove last category from display
+      document.querySelector(`${UISelectors.banner} p`).remove();
+
+      // Remove last phrase
+      let phrase = document.querySelectorAll(`${UISelectors.phrase} li`);
+      console.log(phrase.length);
+      let li = document.querySelectorAll(`${UISelectors.phrase} li`);
+      for(let i = 0; i < phrase.length; i++) {
+        console.log(li[i]);
+        document.querySelector(UISelectors.phrase).removeChild(li[i]);
+      }
+
+      // Get and set new random Category and Phrase 
+      // GameCtrl.gameData();
+      
+      // Add category to display
+      UICtrl.displayCategory();
+
+      // Add phrase to display
+      UICtrl.addPhraseToDisplay();
+      
+      // Clear the keys
+      // let qwerty = document.querySelectorAll(`${UISelectors.qwerty} button`);
+      let qwerty = document.querySelectorAll('#qwerty button');
+      console.log(qwerty.length);
+      for(let i = 0; i < qwerty.length; i++){  
+        qwerty[i].removeAttribute('class');
+        qwerty[i].disabled = false;
+      }
+      div.style.display = 'none';
+      document.querySelector(UISelectors.startBtn).addEventListener('click', startGame);
+    });
+  },
+
+  lose: () => {
+
+  },
+
   // used for mapping the selectors
   getSelectors: () => UISelectors
  }
@@ -333,12 +391,6 @@ const App = ( (PlayerCtrl, GameCtrl, UICtrl) => {
 
     // Listen for Start game click 
     document.querySelector(UISelectors.startBtn).addEventListener('click', startGame);
-
-    // Credit to Randy Layne for the following listener 
-    // supress users ability to click around in the phrase area and have the browsers text selector reveal the phrase
-    document.addEventListener("mousedown", function (e) {
-      e.preventDefault();
-    });
   }
   
 const startGame = () => {
@@ -350,6 +402,12 @@ const startGame = () => {
   // Hide overlay
   UICtrl.hideOverlay();
 
+  // Credit to Randy Layne for the following listener 
+    // supress users ability to click around in the phrase area and have the browsers text selector reveal the phrase
+    document.addEventListener("mousedown", function (e) {
+      e.preventDefault();
+    });
+    
   // Add category to display
   UICtrl.displayCategory();
 
