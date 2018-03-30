@@ -316,6 +316,15 @@ const UICtrl = ( () => {
     document.querySelector(UISelectors.banner).appendChild(h3);
   },
 
+  lives: () => {
+    for(i = 0; i <= maxMissed; i++){ // todo: reset lives
+    }
+  },
+
+  reset: () => { // todo: refactor win/lose and place common settings between them into reset
+
+  }
+
   win: () => {
     let div = document.createElement('div');
     div.id = 'overlay';
