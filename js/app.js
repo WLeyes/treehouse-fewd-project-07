@@ -2,6 +2,9 @@
   // todo: refactor and relocate inside game controller 
 let tries = 0;
 let missed = 0;
+
+// you can increase or decrease lives here
+  // lives will be updated on the display as well
 let maxMissed = 5;
 
 const GameCtrl = ( () => {
@@ -154,6 +157,7 @@ const GameCtrl = ( () => {
         if(missed >= 1 && missed <= maxMissed){
           let lives = document.querySelector('.tries').firstChild;
           lives.src = '../images/lostHeart.png';
+          lives.parentElement.classList.add('tried');
           lives.parentElement.classList.remove('tries');
           for(i=0; i < button.length; i++){
             if(button[i].textContent === event){
@@ -166,7 +170,7 @@ const GameCtrl = ( () => {
     },
 
     checkWin: () => {
-      if(missed === 5){
+      if(missed === maxMissed){
         console.log('Game over! you lost');
         UICtrl.lose();
       }
@@ -261,6 +265,7 @@ const UICtrl = ( () => {
     startBtn: '.btn__reset',
     banner: '#banner',
     phrase: '#phrase ul',
+    scoreboard: '#scoreboard ol',
     letter: '.letter',
     show: '.show',
     qwerty: '#qwerty',
@@ -317,7 +322,13 @@ const UICtrl = ( () => {
   },
 
   lives: () => {
-    for(i = 0; i <= maxMissed; i++){ // todo: reset lives
+    for(i = 0; i < maxMissed; i++){ // todo: reset lives
+      const li = document.createElement('li');
+      li.className = 'tries';
+      const img = document.createElement('img');
+      img.setAttribute('src', 'images/liveHeart.png') ;
+      li.appendChild(img);
+      document.querySelector(UISelectors.scoreboard).appendChild(li);
     }
   },
 
@@ -371,6 +382,18 @@ const UICtrl = ( () => {
         qwerty[i].removeAttribute('class');
         qwerty[i].disabled = false;
       }
+
+      let ol = document.querySelector(UISelectors.scoreboard);
+      let lives = document.querySelectorAll(`${UISelectors.scoreboard} li`);
+      console.log('lives: '+lives.length);
+      // remove empty hearts
+      for(i=0; i < lives.length; i++){
+        ol.removeChild(lives[i]);
+      }
+
+      // Set new hearts
+      UICtrl.lives();
+      
       // Hide win overlay
       div.style.display = 'none';
 
@@ -428,7 +451,20 @@ const UICtrl = ( () => {
         qwerty[i].removeAttribute('class');
         qwerty[i].disabled = false;
       }
-      // Hide win overlay
+
+      let ol = document.querySelector(UISelectors.scoreboard);
+      let lives = document.querySelectorAll(`${UISelectors.scoreboard} li`);
+      console.log('lives: '+lives.length);
+      
+      // remove empty hearts
+      for(i=0; i < lives.length; i++){
+        ol.removeChild(lives[i]);
+      }
+
+      // Set new hearts
+      UICtrl.lives();
+
+      // Hide lose overlay
       div.style.display = 'none';
 
       // Start the game
@@ -466,6 +502,7 @@ const startGame = () => {
   // Check player username
   PlayerCtrl.checkForUsername();
   
+  UICtrl.lives();
   // Hide overlay
   UICtrl.hideOverlay();
 
